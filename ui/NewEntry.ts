@@ -20,12 +20,12 @@ import {
 import gql from 'apollo-client/gql';
 
 import {
+  GraphQLResult,
+} from 'graphql';
+
+import {
   client
 } from './client.ts';
-
-export interface NewEntry {
-  submitRepository(repoFullName: string): Promise<any>
-};
 
 @Component({
   selector: 'new-entry',
@@ -62,7 +62,7 @@ export interface NewEntry {
 })
 @Apollo({
   client,
-  mutations(context) {
+  mutations(context: NewEntry) {
     return {
       submitRepository: (repoFullName) => ({
         mutation: gql`
@@ -81,6 +81,7 @@ export interface NewEntry {
 })
 export class NewEntry {
   error: string;
+  submitRepository: (repoFullName: string) => Promise<GraphQLResult>
 
   constructor(private router: Router) { }
 

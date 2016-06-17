@@ -187,7 +187,7 @@ class FeedEntry {
 })
 @Apollo({
   client,
-  queries(context: any) {
+  queries(context: Feed) {
     return {
       data: {
         query: gql`
@@ -229,7 +229,7 @@ class FeedEntry {
       }
     }
   },
-  mutations(context) {
+  mutations(context: Feed) {
     return {
       vote: (repoFullName, type) => ({
         mutation: gql`

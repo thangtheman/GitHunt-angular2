@@ -939,10 +939,8 @@ interface GraphQLSchemaConfig {
 }
 }
 declare module 'graphql/graphql' {
-import alias = require('~graphql/graphql');
-export = alias;
+export * from '~graphql/graphql';
 }
 declare module 'graphql' {
-import alias = require('~graphql/graphql');
-export = alias;
+export * from '~graphql/graphql';
 }

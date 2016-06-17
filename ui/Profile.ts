@@ -16,10 +16,6 @@ import {
   client
 } from './client.ts';
 
-export interface Profile {
-  data: any;
-}
-
 @Component({
   selector: 'profile',
   directives: [
@@ -50,7 +46,7 @@ export interface Profile {
 })
 @Apollo({
   client,
-  queries(context) {
+  queries(context: Profile) {
     return {
       data: {
         query: gql`
@@ -65,4 +61,6 @@ export interface Profile {
     };
   }
 })
-export class Profile {}
+export class Profile {
+  data: any;
+}
