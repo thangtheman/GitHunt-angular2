@@ -17,11 +17,16 @@ import {
   TimeAgoPipe
 } from 'angular2-moment';
 
+import gql from 'apollo-client/gql';
+
+import {
+  GraphQLResult,
+} from 'graphql';
+
 import {
   client
 } from './client.ts';
 
-import gql from 'apollo-client/gql';
 
 import {
   EmojifyPipe
@@ -162,11 +167,6 @@ class FeedEntry {
   }
 }
 
-export interface Feed {
-  data: any;
-  vote(repoFullName: string, type: string): Promise<any>;
-}
-
 @Component({
   selector: 'feed',
   directives: [
@@ -224,7 +224,8 @@ export interface Feed {
         `,
         variables: {
           type: context.type ? context.type.toUpperCase() : 'TOP'
-        }
+        },
+        pollInterval: 2000,
       }
     }
   },
@@ -251,13 +252,18 @@ export interface Feed {
   }
 })
 export class Feed {
+  data: any;
   type: string;
+  vote: (repoFullName: string, type: string) => Promise<GraphQLResult>;
 
   constructor(params: RouteParams) {
     this.type = params.get('type');
   }
 
   onVote(event: onVoteEvent): void {
-    this.vote(event.repoFullName, event.type);
+    this.vote(event.repoFullName, event.type).then(() => {
+      // get new data
+      this.data.refetch();
+    });
   }
 }
