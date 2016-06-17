@@ -50,7 +50,7 @@ export interface Profile {
 })
 @Apollo({
   client,
-  queries(context: any) {
+  queries(context) {
     return {
       data: {
         query: gql`

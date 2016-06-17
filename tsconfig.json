@@ -10,12 +10,8 @@
     "removeComments": false,
     "sourceMap": true
   },
-  "exclude": [
-    "api",
-    "migrations",
-    "node_modules",
-    "seeds",
-    "screenshots",
-    "typings"
+  "files": [
+    "typings/index.d.ts",
+    "ui/index.ts"
   ]
 }
