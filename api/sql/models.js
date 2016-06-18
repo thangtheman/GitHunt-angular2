@@ -1,5 +1,10 @@
 import knex from './connector';
 
+
+import {
+  newScoring,
+} from '../helpers';
+
 function addSelectToEntryQuery(query) {
   query.select('entries.*', knex.raw('SUM(votes.vote_value) as score'))
     .leftJoin('votes', 'entries.id', 'votes.entry_id')
@@ -22,7 +27,7 @@ function mapNullColsToZero(query) {
 }
 
 export class Entries {
-  getForFeed(type, after) {
+  getForFeed(type) {
     const query = knex('entries')
       .modify(addSelectToEntryQuery);
 
@@ -30,6 +35,8 @@ export class Entries {
       query.orderBy('created_at', 'desc');
     } else if (type === 'TOP') {
       query.orderBy('score', 'desc');
+    } else if (type === 'HOT') {
+      query.orderBy('hotScore', 'desc');
     } else {
       throw new Error(`Feed type ${type} not implemented.`);
     }
@@ -49,17 +56,49 @@ export class Entries {
 
   voteForEntry(repoFullName, voteValue, username) {
     let entry_id;
+    const current = {};
 
     return Promise.resolve()
 
-    // First, get the entry_id from repoFullName
+    // First, get some data from repoFullName
     .then(() => {
       return knex('entries')
         .where({ repository_name: repoFullName })
-        .select(['id'])
+        .select([
+          'id',
+          'score',
+          'ups',
+          'downs',
+          'created_at'
+        ])
         .first()
-        .then(({ id }) => {
+        .then(({
+          id,
+          score,
+          ups,
+          downs,
+          created_at
+        }) => {
           entry_id = id;
+
+          current.score = score || 0;
+          current.ups = ups || 0;
+          current.downs = downs || 0;
+          current.createdAt = created_at;
+        });
+    })
+
+    // Get previous vote_value
+    .then(() => {
+      return knex('votes')
+        .where({
+          entry_id,
+          username,
+        })
+        .select(['vote_value'])
+        .first()
+        .then((result) => {
+          current.previousVote = result ? result.vote_value : undefined;
         });
     })
 
@@ -80,6 +119,29 @@ export class Entries {
           entry_id,
           username,
           vote_value: voteValue,
+        });
+    })
+
+    // Then update UPs, DOWNs and HOT score
+    .then(() => {
+      const result = newScoring({
+        ups: current.ups,
+        downs: current.downs,
+        previousVote: current.previousVote,
+        vote: voteValue,
+        createdAt: current.createdAt,
+      });
+
+
+      return knex('entries')
+        .where({
+          id: entry_id
+        })
+        .update({
+          score: result.score,
+          ups: result.ups,
+          downs: result.downs,
+          hot_score: result.hotScore
         });
     });
   }
@@ -132,7 +194,11 @@ export class Entries {
                 created_at: Date.now(),
                 updated_at: Date.now(),
                 repository_name: repoFullName,
-                posted_by: username
+                posted_by: username,
+                ups: 0,
+                downs: 0,
+                score: 0,
+                hot_score: 0,
               });
           }
         });

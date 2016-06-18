@@ -145,6 +145,18 @@ interface onVoteEvent {
             label="Issues"
             [value]="entry.repository.open_issues_count">
           </info-label>
+          <info-label
+            label="Hot"
+            [value]="entry.hotScore">
+          </info-label>
+          <info-label
+            label="Ups"
+            [value]="entry.ups">
+          </info-label>
+          <info-label
+            label="Downs"
+            [value]="entry.downs">
+          </info-label>
           &nbsp;&nbsp;&nbsp;
           Submitted {{ entry.createdAt | amTimeAgo }}
           &nbsp;by&nbsp;
@@ -198,6 +210,9 @@ class FeedEntry {
             feed(type: $type) {
               createdAt
               score
+              hotScore
+              ups
+              downs
               commentCount
               id
               postedBy {
@@ -236,6 +251,9 @@ class FeedEntry {
           mutation vote($repoFullName: String!, $type: VoteType!) {
             vote(repoFullName: $repoFullName, type: $type) {
               score
+              hotScore
+              ups
+              downs
               id
               vote {
                 vote_value

@@ -66,5 +66,5 @@ export function seed(knex, Promise) {
         });
       }));
     }));
-  });
+  })
 }

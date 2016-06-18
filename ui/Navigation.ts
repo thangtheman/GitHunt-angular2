@@ -27,6 +27,16 @@ import {
       <ul class="nav navbar-nav">
         <li
           [class.active]="router.isRouteActive(
+            router.generate(['/Feed', { type: 'hot' }])
+          )">
+          <a
+            title="Hot"
+            [routerLink]="['Feed', { type: 'hot' }]">
+            Hot
+          </a>
+        </li>
+        <li
+          [class.active]="router.isRouteActive(
             router.generate(['/Feed', { type: 'top' }])
           )">
           <a

@@ -16,6 +16,9 @@ type Entry {
   postedBy: User!
   createdAt: Float! # Actually a date
   score: Int!
+  ups: Int!
+  downs: Int!
+  hotScore: Float!
   comments: [Comment]! # Should this be paginated?
   commentCount: Int!
   id: Int!
@@ -34,6 +37,7 @@ export const resolvers = {
     comments() {
       throw new Error('Not implemented.');
     },
+    hotScore: property('hot_score'),
     createdAt: property('created_at'),
     commentCount: constant(0),
     vote({ repository_name }, _, context) {
