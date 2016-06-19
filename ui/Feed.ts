@@ -2,8 +2,13 @@ import {
   Component,
   Input,
   Output,
-  EventEmitter
+  EventEmitter,
 } from '@angular/core';
+
+import {
+  Http,
+  Response,
+} from '@angular/http';
 
 import {
   RouteParams
@@ -256,8 +261,18 @@ export class Feed {
   type: string;
   vote: (repoFullName: string, type: string) => Promise<GraphQLResult>;
 
-  constructor(params: RouteParams) {
+  constructor(params: RouteParams, http: Http) {
     this.type = params.get('type');
+
+    // get Feed using REST Api
+    http.get(`api/feed/${this.type}`).subscribe((res: Response) => {
+      console.log('feed', res.json());
+    });
+
+    // get CurrentUser using REST Api
+    //http.get('api/users/current').subscribe((res: Response) => {
+    //  console.log('currentUser', (res.json() || {}).body);
+    //});
   }
 
   onVote(event: onVoteEvent): void {

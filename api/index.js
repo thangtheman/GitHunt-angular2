@@ -13,9 +13,8 @@ const store = new KnexSessionStore({
 });
 
 import { schema, resolvers } from './schema';
-import { GitHubConnector } from './github/connector';
-import { Repositories, Users } from './github/models';
-import { Entries } from './sql/models';
+import context from './context';
+import RESTApi from './rest';
 
 dotenv.config({ silent: true });
 let PORT = 3010;
@@ -78,11 +77,6 @@ app.use('/graphql', apolloServer((req) => {
     };
   }
 
-  const gitHubConnector = new GitHubConnector({
-    client_id: GITHUB_CLIENT_ID,
-    client_secret: GITHUB_CLIENT_SECRET,
-  });
-
   return {
     graphiql: true,
     pretty: true,
@@ -90,12 +84,14 @@ app.use('/graphql', apolloServer((req) => {
     schema,
     context: {
       user,
-      Repositories: new Repositories({ connector: gitHubConnector }),
-      Users: new Users({ connector: gitHubConnector }),
-      Entries: new Entries(),
+      Repositories: context.Repositories,
+      Users: context.Users,
+      Entries: context.Entries,
     },
   };
 }));
+
+RESTApi(app);
 
 app.listen(PORT, () => console.log(
   `Server is now running on http://localhost:${PORT}`
